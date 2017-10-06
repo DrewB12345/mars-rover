@@ -14,18 +14,22 @@ public class Rover
     int dir; // 0=North, 1=East, 2=South, 3=West
     int numPics;
     int energy;
+    int health;
     boolean isAlive;
     boolean inSpeedMode;
-    
+    int memory;
     
     // constructor(s)
     public Rover()
     {
-        this.x = (int )(Math.random() * 10 + 1);
-        this.y = (int )(Math.random() * 10 + 1);
-        this.dir = ((int )(Math.random() * 4 + 1))-1;
+        this.x = (int)(Math.random() * 11 + 1)-1;
+        int num = (int)(Math.random() * 4 + 1);
+        this.y = (int)(Math.random() * 11 + 1)-1;
+        this.dir = ((int)(Math.random() * 4 + 1))-1;
         this.numPics = 0;
         this.energy = 10;
+        this.health = 5;
+        this.memory = 5;
         this.isAlive = true;
         this.inSpeedMode = false;
     }
@@ -38,6 +42,8 @@ public class Rover
         this.dir = 0;
         this.numPics = 0;
         this.energy = 10;
+        this.health = 5;
+        this.memory = 5;
         this.isAlive = true;
         this.inSpeedMode = false;
     }
@@ -49,6 +55,7 @@ public class Rover
         this.dir = dir;
         this.numPics = 0;
         this.energy = 10;
+        this.health = 5;
         this.isAlive = true;
         this.inSpeedMode = false;
     }
@@ -61,6 +68,8 @@ public class Rover
         this.dir = dir;
         this.numPics = 0;
         this.energy = 10;
+        this.health = 5;
+        this.memory = 5;
         this.isAlive = true;
         this.inSpeedMode = false;
     }
@@ -69,9 +78,7 @@ public class Rover
     // methods - stuff the Rover can do    
     private String getDirectionName() {
         if (this.dir == 0) {
-            String d = Integer.toString(this.dir);
-            d = "north";
-            return d;
+            return "north";
         }    
         
         else if (this.dir == 1) {
@@ -118,7 +125,7 @@ public class Rover
     }
     
     public void takePic() {
-        int memory = 5;
+        
         if (energy >= 1) {
             if (isAlive && numPics < memory) {
                 numPics += 1;
@@ -364,10 +371,11 @@ public class Rover
     }    
 */    
     public void kill(Rover other) {
-        if (isAlive && energy >= 6) {
+        if (isAlive && energy >= 8) {
             System.out.println(this.name + " kills " + other.name + " because " + other.name + " stole its breakfast.");
             other.isAlive = false;
-            energy -= 6;
+            other.health = 0;
+            energy -= 8;
         }
         
         else if (!isAlive) {
@@ -377,20 +385,105 @@ public class Rover
         else {
             System.out.println(name + " doesn't have enough energy to kill another rover.");
         }    
+    }
 
+    public void attack(Rover other) {
+        if (isAlive && energy >= 4 && other.isAlive) {
+            if (this.x == other.x) {
+                if (other.y <= this.y + 1 && other.y >= this.y -1) {
+                    int num = (int)(Math.random() * 4 + 1);
+                    if (num == 1) {
+                        System.out.println(this.name + " tried to attack " + other.name + " but missed. What a loser.");
+                    }
+                    
+                    else {
+                        int crit = (int)(Math.random() * 8 + 1);
+                        if (crit == 1) {
+                            System.out.println(this.name + " got a critical hit and " + other.name + " took four damage.");
+                            other.health -= 4;
+                        }
+                        else {
+                            System.out.println(this.name + " attacked " + other.name + " and dealt two damage.");
+                            other.health -= 2;
+                        }
+                    }
+                    
+                    energy -= 4;
+                    
+                    if (other.health <= 0) {
+                        other.isAlive = false;
+                        System.out.println(other.name + " died.");
+                    }
+                }
+                
+                else {
+                    System.out.println(other.name + " is too far away from " + this.name + " to be attacked.");
+                }
+            }
+            
+            else if (this.y == other.y) {
+                if (other.x <= this.x + 1 && other.x >= this.x - 1) {
+                    int num = (int)(Math.random() * 4 + 1);
+                    if (num == 1) {
+                        System.out.println(this.name + " tried to attack " + other.name + " but missed. What a loser.");
+                    }
+                    
+                    else {
+                        int crit = (int)(Math.random() * 8 + 1);
+                        if (crit == 1) {
+                            System.out.println(this.name + " got a critical hit and " + other.name + " took four damage.");
+                            other.health -= 4;
+                        }
+                        else {
+                            System.out.println(this.name + " attacked " + other.name + " and dealt two damage.");
+                            other.health -= 2;
+                        }
+                    }
+                    
+                    energy -= 4;
+                    
+                    if (other.health <= 0) {
+                        other.isAlive = false;
+                        System.out.println(other.name + " died.");
+                    }
+                }
+                else {
+                    System.out.println(other.name + " is too far away from " + this.name + " to be attacked.");
+                }
+            }
+            
+            else {
+                System.out.println(this.name + " is too far from " + other.name + " to attack.");
+            }
+            
+        }
+        
+
+        else if (!isAlive) {
+            System.out.println(name + " can't attack another rover because it's dead.");
+        }
+        
+        else if (other.isAlive == false) {
+            System.out.println(name + " can't attack " + other.name + " because " + other.name + " is already dead.");
+        }
+        
+        else {
+            System.out.println(name + " doesn't have enough energy to attack another rover.");
+        }    
 
     }
-    
+
     public void repair(Rover other) {
         if (energy >= 5) {
-            if (isAlive && other.isAlive == false) {
-                System.out.println(this.name + " repairs " + other.name + ". " + other.name + " can now perform actions again.");
+            if (isAlive && other.health < 5) {
+                System.out.println(this.name + " repairs " + other.name + ". " + other.name + " is back to full health.");
                 other.isAlive = true;
+                other.health = 5;
                 energy -= 5;
             }
             
-            else if (isAlive && other.isAlive == true) {
-                System.out.println(this.name + " can't repair " + other.name + " because " + other.name + " isn't dead.");
+            else if (isAlive && other.health == 5) {
+                System.out.println(this.name + " can't repair " + other.name + " because " + other.name + " is already at full health.");
             }
             
             else {
@@ -399,7 +492,7 @@ public class Rover
         }
         
         else {
-            System.out.println(name + " doesn't have enough energy to repair a dead rover.");
+            System.out.println(name + " doesn't have enough energy to repair another rover.");
         }    
 
     }    
@@ -440,8 +533,12 @@ public class Rover
         }
     }
     
+    public String getName() {
+        return name;
+    }
+    
     public String toString() 
     {
-        return "Rover[name=" + name + ", x=" + x + ", y=" + y + ", dir=" + getDirectionName() + ", pics=" + numPics + ", alive=" + isAlive +", speedmode=" + inSpeedMode + ", energy=" + energy + "]";
+        return "Rover[name=" + name + ", x=" + x + ", y=" + y + ", dir=" + getDirectionName() + ", pics=" + numPics + ", alive=" + isAlive +", speedmode=" + inSpeedMode + ", energy=" + energy + ", health=" + health + "]";
     }
 }
